@@ -25,7 +25,11 @@ public class AuthenticationController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<String> authenticate(@RequestBody AuthenticationRequest request){
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPassword()));
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword())
+        );
         final UserDetails user = userDao.findUserByEmail(request.getEmail());
         if(user != null){
              return ResponseEntity.ok(jwtUtils.generateToken(user));

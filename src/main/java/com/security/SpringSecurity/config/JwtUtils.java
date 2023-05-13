@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 @Component
+
 public class JwtUtils {
 
 
@@ -24,6 +25,12 @@ public class JwtUtils {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    public boolean hasClaim(String token, String claimName) {
+        final Claims claims = extractAllClaims(token);
+        return claims.get(claimName) != null;
+
+    }
+
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
@@ -35,30 +42,35 @@ public class JwtUtils {
     private Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
-//
-//    public String generateToken(UserDetails userDetails) {
-//        Map<String, Object> claims = new HashMap<>();
-//        return createToken(claims, userDetails.getUsername());
-//    }
     public String generateToken(UserDetails userDetails) {
         return createToken(userDetails);
     }
 
-    private String createToken(UserDetails userDetails) {
+    private String createToken( UserDetails userDetails) {
 
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
+                .claim("authorities",userDetails.getAuthorities())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(24)))
                 .signWith(SignatureAlgorithm.HS256, jwtSigningKey).compact();
     }
 
-//    private String createToken(Map<String, Object> claims, String subject) {
-//
-//        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-//                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
-//                .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
+
+//    public String generateToken(UserDetails userDetails, Map<String, Object> claims) {
+//        return createToken(claims, userDetails);
 //    }
+//
+//    private String createToken(Map<String, Object> claims, UserDetails userDetails) {
+//
+//        return Jwts.builder().setClaims(claims)
+//                .setSubject(userDetails.getUsername())
+//                .claim("authorities",userDetails.getAuthorities())
+//                .setIssuedAt(new Date(System.currentTimeMillis()))
+//                .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(24)))
+//                .signWith(SignatureAlgorithm.HS256, jwtSigningKey).compact();
+//    }
+
 
     public Boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
