@@ -7,7 +7,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -41,13 +40,13 @@ public class JwtUtils {
 //        Map<String, Object> claims = new HashMap<>();
 //        return createToken(claims, userDetails.getUsername());
 //    }
-    public String generateToken(UserDetails userDetails, Map<String, Object> claims) {
-        return createToken(claims, userDetails);
+    public String generateToken(UserDetails userDetails) {
+        return createToken(userDetails);
     }
 
-    private String createToken(Map<String, Object> claims, UserDetails userDetails) {
+    private String createToken(UserDetails userDetails) {
 
-        return Jwts.builder().setClaims(claims)
+        return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(24)))
